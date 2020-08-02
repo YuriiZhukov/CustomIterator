@@ -2,9 +2,12 @@
 
 #include <initializer_list>
 
+#define RANDOM_ITERATOR_TYPE
+
 template <typename T>
 class Vector;
 
+#ifdef INPUT_ITERATOR_TYPE
 template<typename T>
 class VectorIterator : public std::iterator<std::input_iterator_tag, T>
 {
@@ -32,6 +35,148 @@ public:
 private:
 	T* p;
 };
+#endif
+
+#ifdef FORWARD_ITERATOR_TYPE
+template<typename T>
+class VectorIterator : public std::iterator<std::forward_iterator_tag, T>
+{
+	friend class Vector<T>;
+private:
+	VectorIterator(T* p) : p(p) {};
+public:
+	VectorIterator(const VectorIterator &it) : p(it.p) {}
+
+	bool operator!=(VectorIterator const& other) const {
+		return p != other.p;
+	}
+	bool operator==(VectorIterator const& other) const {
+		return p == other.p;
+	}
+	T& operator*() const {
+		return *p;
+	}
+
+	VectorIterator& operator++() {
+		++p;
+		return *this;
+	}
+
+private:
+	T* p;
+};
+#endif
+
+#ifdef BIDIRECTIONAL_ITERATOR_TYPE
+template<typename T>
+class VectorIterator : public std::iterator<std::bidirectional_iterator_tag, T>
+{
+	friend class Vector<T>;
+private:
+	VectorIterator(T* p) : p(p) {};
+public:
+	VectorIterator(const VectorIterator &it) : p(it.p) {}
+
+	bool operator!=(VectorIterator const& other) const {
+		return p != other.p;
+	}
+	bool operator==(VectorIterator const& other) const {
+		return p == other.p;
+	}
+	T& operator*() const {
+		return *p;
+	}
+
+	// Префиксный оператор ++
+	VectorIterator& operator++() {
+		++p;
+		return *this;
+	}
+	// Постфиксный оператор ++
+	VectorIterator operator++(int) {
+		VectorIterator temp = *this;
+		++p;
+		return temp;
+	}
+	// Префиксный оператор --
+	VectorIterator& operator--() {
+		--p;
+		return *this;
+	}
+	// Постфиксный оператор --
+	VectorIterator operator--(int) {
+		VectorIterator temp = *this;
+		--p;
+		return temp;
+	}
+private:
+	T* p;
+};
+#endif
+
+#ifdef RANDOM_ITERATOR_TYPE
+template<typename T>
+class VectorIterator : public std::iterator<std::random_access_iterator_tag, T>
+{
+	friend class Vector<T>;
+private:
+	VectorIterator(T* p) : p(p) {};
+public:
+	VectorIterator(const VectorIterator &it) : p(it.p) {}
+
+	bool operator!=(VectorIterator const& other) const {
+		return p != other.p;
+	}
+	bool operator==(VectorIterator const& other) const {
+		return p == other.p;
+	}
+	T& operator*() const {
+		return *p;
+	}
+
+	// Префиксный оператор ++
+	VectorIterator& operator++() {
+		++p;
+		return *this;
+	}
+	// Постфиксный оператор ++
+	VectorIterator operator++(int) {
+		VectorIterator temp = *this;
+		++p;
+		return temp;
+	}
+	// Префиксный оператор --
+	VectorIterator& operator--() {
+		--p;
+		return *this;
+	}
+	// Постфиксный оператор --
+	VectorIterator operator--(int) {
+		VectorIterator temp = *this;
+		--p;
+		return temp;
+	}
+
+	VectorIterator& operator+(int value) {
+		p += value;
+		return *this;
+	}
+	VectorIterator& operator-(int value) {
+		p -= value;
+		return *this;
+	}
+	VectorIterator& operator+=(int value) {
+		p += value;
+		return *this;
+	}
+	VectorIterator& operator-=(int value) {
+		p -= value;
+		return *this;
+	}
+private:
+	T* p;
+};
+#endif
 
 template <typename T>
 class Vector
@@ -75,6 +220,9 @@ public:
 
 	VectorIterator<T> begin() { return VectorIterator<T>(data); }
 	VectorIterator<T> end() { return VectorIterator<T>(data + _size); }
+
+	VectorIterator<T> rbegin() { return VectorIterator<T>(data + _size - 1); }
+	VectorIterator<T> rend() { return VectorIterator<T>(data - 1); }
 
 private:
 	T* data;
